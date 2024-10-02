@@ -55,3 +55,37 @@ ORDER BY
         ELSE EXTRACT(DOW FROM s.sale_date)
     END, 
     seller;
+
+    -- считаю  количество покупателей в разных возрастных группах
+SELECT
+    CASE 
+        WHEN age >= 16 AND age <= 25 THEN '16-25'
+        WHEN age >= 26 AND age <= 40 THEN '26-40'
+        ELSE '40+'
+    END AS age_category,
+    COUNT(*) AS age_count
+FROM customers
+GROUP BY age_category
+ORDER BY age_category;
+
+-- считаем данные по количеству уникальных покупателей и выручке, которую они принесли
+select 
+TO_CHAR (sale_date, 'YYYY-MM') as selling_month,
+COUNT (distinct customer_id) as total_customers,
+floor(SUM (p.price * s.quantity)) as income
+from products p join sales s on p.product_id = s.product_id 
+group by TO_CHAR (sale_date, 'YYYY-MM')
+ORDER BY 
+    selling_month;
+
+    -- отчет  о покупателях, первая покупка которых была в ходе проведения акций
+    SELECT 
+    CONCAT(c.first_name, ' ', c.last_name) AS customer,
+    MIN (sale_date) as sale_date,
+    CONCAT(e.first_name, ' ', e.last_name) AS seller
+    from customers c join sales s on s.customer_id = c.customer_id 
+    join employees e on e.employee_id = s.sales_person_id 
+    join products p on p.product_id = s.product_id 
+    where p.price = 0
+    group by  c.first_name, c.last_name, e.first_name, e.last_name
+    order by customer;
