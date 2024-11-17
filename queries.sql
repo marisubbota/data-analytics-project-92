@@ -78,14 +78,17 @@ group by TO_CHAR (sale_date, 'YYYY-MM')
 ORDER BY 
     selling_month;
 
-    -- отчет  о покупателях, первая покупка которых была в ходе проведения акций
-    SELECT 
+-- отчет  о покупателях, первая покупка которых была в ходе проведения акций
+SELECT DISTINCT ON (s.customer_id) 
     CONCAT(c.first_name, ' ', c.last_name) AS customer,
-    MIN (sale_date) as sale_date,
+    s.sale_date as sale_date,
     CONCAT(e.first_name, ' ', e.last_name) AS seller
-    from customers c join sales s on s.customer_id = c.customer_id 
+FROM 
+    sales s
+    JOIN products p ON p.product_id = s.product_id
+    join customers c  on s.customer_id = c.customer_id 
     join employees e on e.employee_id = s.sales_person_id 
-    join products p on p.product_id = s.product_id 
-    where p.price = 0
-    group by  c.first_name, c.last_name, e.first_name, e.last_name
-    order by customer;
+WHERE 
+    p.price = 0
+ORDER BY 
+    s.customer_id, s.sale_date ASC
