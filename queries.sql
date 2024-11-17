@@ -39,7 +39,7 @@ ORDER BY
 -- выручка по дням недели 
 SELECT 
     CONCAT(e.first_name, ' ', e.last_name) AS seller, 
-    TO_CHAR(s.sale_date, 'Day') AS day_of_week, 
+    LOWER(TO_CHAR(s.sale_date, 'Day')) AS day_of_week, 
     FLOOR(SUM(p.price * s.quantity)) AS income
 FROM 
     sales s
